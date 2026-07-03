@@ -1,10 +1,11 @@
-import React, { useState } from "react"
-import { useNavigate, Link } from "react-router-dom"
+import React, { useEffect, useState } from "react"
+import { useParams, useNavigate } from "react-router-dom"
 import useGlobalReducer from "../hooks/useGlobalReducer.jsx"
 
 const baseUrl = "https://playground.4geeks.com/contact/agendas/"
 
-export const ContactForm = () => {
+export const ContactEdit = () => {
+    const { id } = useParams()
     const navigate = useNavigate()
     const { store } = useGlobalReducer()
 
@@ -15,6 +16,19 @@ export const ContactForm = () => {
         address: ""
     })
 
+    useEffect(() => {
+        const contact = store.contacts.find(c => c.id === Number(id))
+
+        if (contact) {
+            setFormData({
+                name: contact.name,
+                email: contact.email,
+                phone: contact.phone,
+                address: contact.address
+            })
+        }
+    }, [id, store.contacts])
+
     const handleChange = (e) => {
         setFormData({
             ...formData,
@@ -23,28 +37,26 @@ export const ContactForm = () => {
     }
 
     const handleSubmit = (e) => {
-        e.preventDefault();
+        e.preventDefault()
 
-        fetch(`${baseUrl}${store.agendaSlug}/contacts`, {
-            method: "POST",
+        fetch(`${baseUrl}${store.agendaSlug}/contacts/${id}`, {
+            method: "PUT",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(formData)
         })
             .then((response) => {
-                if (!response.ok) throw new Error("Error al crear contacto")
-                return response.json();
+                if (!response.ok) throw new Error("Error al actualizar contacto")
+                return response.json()
             })
             .then(() => {
                 navigate("/") 
             })
-            .catch((error) => {
-                console.error("Error:", error)
-            })
+            .catch((error) => console.error("Error:", error))
     }
 
     return (
         <div className="container my-5">
-            <h2 className="text-center fw-bold mb-4">Add a new contact</h2>
+            <h2 className="text-center fw-bold mb-4">Edit Contact</h2>
 
             <form onSubmit={handleSubmit} className="mx-auto" style={{ maxWidth: "600px" }}>
 
@@ -56,7 +68,6 @@ export const ContactForm = () => {
                         name="name"
                         value={formData.name}
                         onChange={handleChange}
-                        placeholder="Full Name"
                         required
                     />
                 </div>
@@ -69,7 +80,6 @@ export const ContactForm = () => {
                         name="email"
                         value={formData.email}
                         onChange={handleChange}
-                        placeholder="Enter email"
                         required
                     />
                 </div>
@@ -82,7 +92,6 @@ export const ContactForm = () => {
                         name="phone"
                         value={formData.phone}
                         onChange={handleChange}
-                        placeholder="Enter phone"
                         required
                     />
                 </div>
@@ -95,18 +104,21 @@ export const ContactForm = () => {
                         name="address"
                         value={formData.address}
                         onChange={handleChange}
-                        placeholder="Enter address"
                         required
                     />
                 </div>
 
                 <button type="submit" className="btn btn-primary w-100 mb-3 btn-lg">
-                    Save
+                    Save Changes
                 </button>
 
-                <Link to="/" className="d-block text-center text-secondary">
-                    or get back to contacts
-                </Link>
+                <button
+                    type="button"
+                    className="btn btn-secondary w-100"
+                    onClick={() => navigate("/")}
+                >
+                    Cancel
+                </button>
 
             </form>
         </div>

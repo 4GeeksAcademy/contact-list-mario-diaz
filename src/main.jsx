@@ -8,9 +8,7 @@ import { StoreProvider } from './hooks/useGlobalReducer';  // Import the StorePr
 const Main = () => {
     return (
         <React.StrictMode>  
-            {/* Provide global state to all components */}
             <StoreProvider> 
-                {/* Set up routing for the application */} 
                 <RouterProvider router={router}>
                 </RouterProvider>
             </StoreProvider>
@@ -18,5 +16,5 @@ const Main = () => {
     );
 }
 
-// Render the Main component into the root DOM element.
+// Render the Main component into the root DOM element
 ReactDOM.createRoot(document.getElementById('root')).render(<Main />)
